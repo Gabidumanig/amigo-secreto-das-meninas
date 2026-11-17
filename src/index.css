@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  --color-cream: #fff6f0;
+  --color-cream-deep: #f7e8df;
+  --color-blush: #f6d5d8;
+  --color-rose: #e8a0a8;
+  --color-wine: #7a1f3d;
+  --color-wine-deep: #5c1530;
+  --color-ink: #3a1f28;
+  --color-muted: #7a5a64;
+  --color-success: #2f6b4f;
+  --color-warning: #9a5b12;
+  --color-danger: #a1243b;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background:
+      radial-gradient(ellipse 80% 50% at 10% -10%, #f8c9d0 0%, transparent 55%),
+      radial-gradient(ellipse 70% 45% at 100% 0%, #f3ddd2 0%, transparent 50%),
+      linear-gradient(180deg, var(--color-cream) 0%, #ffe9e4 48%, var(--color-cream-deep) 100%);
+    background-attachment: fixed;
+  }
+
+  #root {
+    min-height: 100dvh;
+  }
+
+  *:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-wine) 55%, white);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+}

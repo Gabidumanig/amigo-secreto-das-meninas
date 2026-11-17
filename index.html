@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="googlebot" content="noindex, nofollow, noarchive" />
+  <meta name="theme-color" content="#7A1F3D" />
+  <title>Amigo Secreto das Meninas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #fff6f0;
+      --cream-deep: #f7e8df;
+      --blush: #f6d5d8;
+      --rose: #e8a0a8;
+      --wine: #7a1f3d;
+      --wine-deep: #5c1530;
+      --ink: #3a1f28;
+      --muted: #7a5a64;
+      --success: #2f6b4f;
+      --warning: #9a5b12;
+      --danger: #a1243b;
+      --font-display: "Fraunces", Georgia, serif;
+      --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, #f8c9d0 0%, transparent 55%),
+        radial-gradient(ellipse 70% 45% at 100% 0%, #f3ddd2 0%, transparent 50%),
+        linear-gradient(180deg, var(--cream) 0%, #ffe9e4 48%, var(--cream-deep) 100%);
+      background-attachment: fixed;
+    }
+
+    *:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--wine) 55%, white);
+      outline-offset: 2px;
+    }
+
+    .demo-banner {
+      background: var(--wine);
+      color: var(--cream);
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.55rem 1rem;
+    }
+
+    .wrap {
+      width: min(42rem, 100%);
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 1.75rem;
+      background: var(--wine);
+      color: var(--cream);
+      padding: 2rem 1.5rem;
+      box-shadow: 0 24px 60px -28px rgba(92, 21, 48, 0.55);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(28px);
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 12rem;
+      height: 12rem;
+      right: -2rem;
+      top: -4rem;
+      background: color-mix(in srgb, var(--rose) 45%, transparent);
+    }
+
+    .hero::after {
+      width: 13rem;
+      height: 13rem;
+      left: -2rem;
+      bottom: -5rem;
+      background: color-mix(in srgb, var(--blush) 40%, transparent);
+    }
+
+    .hero > * { position: relative; }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--blush);
+    }
+
+    .hero h1 {
+      margin: 0.75rem 0 0;
+      font-family: var(--font-display);
+      font-size: clamp(1.85rem, 5vw, 2.75rem);
+      line-height: 1.15;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin: 1.5rem 0 0;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 640px) {
+      .meta { grid-template-columns: 1fr 1fr; }
+      .hero { padding: 2.5rem 2rem; }
+    }
+
+    .meta dt {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--blush) 90%, white);
+    }
+
+    .meta dd {
+      margin: 0.25rem 0 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .gift-rule {
+      display: inline-flex;
+      margin-top: 1.5rem;
+      padding: 0.55rem 1rem;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--cream) 15%, transparent);
+      border: 1px solid color-mix(in srgb, var(--cream) 25%, transparent);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .card {
+      background: color-mix(in srgb, var(--cream) 88%, white);
+      border: 1px solid color-mix(in srgb, var(--wine) 12%, transparent);
+      border-radius: 1.5rem;
+      padding: 1.35rem;
+      box-shadow: 0 18px 40px -30px rgba(58, 31, 40, 0.45);
+    }
+
+    @media (min-width: 640px) {
+      .card { padding: 1.75rem; }
+    }
+
+    .card h2 {
+      margin: 0;
+      font-family: var(--font-display);
+      color: var(--wine);
+      font-size: 1.55rem;
+    }
+
+    .card .lead {
+      margin: 0.4rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .field { display: grid; gap: 0.4rem; margin-top: 1rem; }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    input {
+      min-height: 3rem;
+      width: 100%;
+      border-radius: 0.85rem;
+      border: 1px solid color-mix(in srgb, var(--wine) 15%, transparent);
+      background: var(--cream);
+      padding: 0 1rem;
+      font: inherit;
+      color: var(--ink);
+    }
+
+    input::placeholder { color: color-mix(in srgb, var(--muted) 70%, white); }
+
+    input[aria-invalid="true"] {
+      border-color: var(--danger);
+    }
+
+    .error {
+      margin: 0;
+      color: var(--danger);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .gifts {
+      margin-top: 1.25rem;
+      border: 1px solid color-mix(in srgb, var(--wine) 12%, transparent);
+      background: color-mix(in srgb, var(--blush) 30%, transparent);
+      border-radius: 1rem;
+      padding: 1rem 1rem 0.25rem;
+    }
+
+    .gifts legend {
+      padding: 0 0.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--wine);
+    }
+
+    .food-box {
+      margin-top: 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid color-mix(in srgb, var(--wine) 10%, transparent);
+      background: color-mix(in srgb, var(--cream) 70%, white);
+      padding: 1rem;
+    }
+
+    .food-box h3 {
+      margin: 0;
+      font-family: var(--font-display);
+      color: var(--wine);
+      font-size: 1.2rem;
+    }
+
+    .food-list {
+      list-style: none;
+      margin: 1rem 0 0;
+      padding: 0;
+    }
+
+    .food-list li {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding: 0.75rem 0;
+      border-top: 1px solid color-mix(in srgb, var(--wine) 10%, transparent);
+    }
+
+    .food-list li:first-child { border-top: 0; padding-top: 0; }
+
+    @media (min-width: 640px) {
+      .food-list li {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1rem;
+      }
+    }
+
+    .food-list strong { font-weight: 600; }
+    .food-list span { color: var(--muted); }
+
+    .empty, .warn, .slug {
+      margin: 0.85rem 0 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .warn {
+      background: color-mix(in srgb, var(--warning) 12%, white);
+      color: var(--warning);
+      border-radius: 0.85rem;
+      padding: 0.85rem;
+    }
+
+    .slug {
+      border: 1px dashed color-mix(in srgb, var(--wine) 25%, transparent);
+      border-radius: 0.85rem;
+      padding: 0.85rem 1rem;
+      background: color-mix(in srgb, var(--cream) 65%, white);
+    }
+
+    .slug code { color: var(--wine); word-break: break-all; }
+
+    .btn {
+      margin-top: 1.25rem;
+      width: 100%;
+      min-height: 3.5rem;
+      border: 0;
+      border-radius: 1rem;
+      background: var(--wine);
+      color: var(--cream);
+      font: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .btn:hover { background: var(--wine-deep); }
+    .btn:disabled { opacity: 0.7; cursor: wait; }
+
+    .btn-secondary {
+      background: var(--cream);
+      color: var(--wine);
+      border: 1px solid color-mix(in srgb, var(--wine) 20%, transparent);
+      min-height: 3rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-secondary:hover {
+      background: color-mix(in srgb, var(--blush) 40%, white);
+    }
+
+    .success-label {
+      margin: 0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--success);
+    }
+
+    .summary {
+      margin: 1.5rem 0 0;
+      padding: 1rem;
+      border-radius: 1rem;
+      background: color-mix(in srgb, var(--blush) 35%, white);
+      display: grid;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .summary div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    @media (min-width: 640px) {
+      .summary div {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+    }
+
+    .summary dt { font-weight: 700; }
+    .summary dd { margin: 0; word-break: break-word; }
+
+    .note {
+      margin: 1.25rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="demo-banner" role="status">
+    Modo demonstrativo — dados fictícios. Cadastro, banco e e-mails ainda não estão conectados.
+  </div>
+
+  <main class="wrap">
+    <header class="hero">
+      <p class="eyebrow">Convite privado</p>
+      <h1>Amigo Secreto das Meninas</h1>
+      <dl class="meta">
+        <div>
+          <dt>Data</dt>
+          <dd>17 de dezembro de 2026</dd>
+        </div>
+        <div>
+          <dt>Horário</dt>
+          <dd>18h <span style="font-size:0.85rem;font-weight:400;color:var(--blush)">(America/Sao_Paulo)</span></dd>
+        </div>
+        <div>
+          <dt>Local</dt>
+          <dd>Casa da Gabi</dd>
+        </div>
+        <div>
+          <dt>Endereço</dt>
+          <dd>Av. Açôce, 92, apartamento 152 — Moema</dd>
+        </div>
+      </dl>
+      <p class="gift-rule">Presente de até R$ 100,00</p>
+    </header>
+
+    <p class="slug">
+      Link privado de demonstração:
+      <code>/e/evt_a7f3c91e2b84d0569e1a4c8f27b0d3e5</code>
+    </p>
+
+    <section id="form-card" class="card" aria-labelledby="registration-heading">
+      <h2 id="registration-heading">Confirme sua participação</h2>
+      <p class="lead">Nome, e-mail e comida são obrigatórios. As sugestões de presente são opcionais.</p>
+
+      <form id="registration-form" novalidate>
+        <div class="field">
+          <label for="name">Nome</label>
+          <input id="name" name="name" autocomplete="name" required />
+          <p class="error" id="name-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required />
+          <p class="error" id="email-error" hidden></p>
+        </div>
+
+        <fieldset class="gifts">
+          <legend>
+            Dê três ideias de presentes que você gostaria de ganhar, respeitando o valor de até R$ 100,00.
+          </legend>
+          <div class="field">
+            <label for="gift1">Sugestão de presente 1</label>
+            <input id="gift1" name="gift1" />
+            <p class="error" id="gift1-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="gift2">Sugestão de presente 2</label>
+            <input id="gift2" name="gift2" />
+            <p class="error" id="gift2-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="gift3">Sugestão de presente 3</label>
+            <input id="gift3" name="gift3" />
+            <p class="error" id="gift3-error" hidden></p>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="food">O que você vai levar de comida?</label>
+          <input
+            id="food"
+            name="food"
+            placeholder="Ex.: torta de chocolate…"
+            required
+          />
+          <p class="error" id="food-error" hidden></p>
+        </div>
+
+        <div class="food-box" aria-labelledby="food-list-heading">
+          <h3 id="food-list-heading">O que cada uma vai levar</h3>
+          <p class="empty" id="food-empty" hidden>Ninguém informou ainda. Seja a primeira!</p>
+          <ul class="food-list" id="food-list"></ul>
+          <p class="warn" id="food-dup" hidden>
+            Uma das meninas já vai levar esse item. Que tal escolher outra opção?
+          </p>
+        </div>
+
+        <button class="btn" id="submit-btn" type="submit">Confirmar minha participação</button>
+      </form>
+    </section>
+
+    <section id="confirm-card" class="card" hidden tabindex="-1" aria-labelledby="confirmation-heading">
+      <p class="success-label">Participação confirmada</p>
+      <h2 id="confirmation-heading">Prontinho! Sua participação está confirmada.</h2>
+      <p class="lead" style="font-size:1rem;line-height:1.55">
+        Assim que o sorteio acontecer, você receberá por e-mail quem tirou e as sugestões de presente dela.
+      </p>
+      <dl class="summary" id="summary"></dl>
+      <p class="note">
+        Amigo Secreto das Meninas · 17 de dezembro de 2026 · 18h · Casa da Gabi
+      </p>
+      <button class="btn btn-secondary" id="back-btn" type="button">Voltar ao formulário (demo)</button>
+    </section>
+  </main>
+
+  <script>
+    /**
+     * DADOS DEMONSTRATIVOS — Etapa 1 (somente interface).
+     * Serão substituídos pela integração real na Etapa 2.
+     */
+    const DEMO_FOOD = [
+      { id: 'demo-p1', name: 'Mariana', food: 'Torta salgada' },
+      { id: 'demo-p2', name: 'Julia', food: 'Brigadeiro' },
+      { id: 'demo-p3', name: 'Fernanda', food: 'Pão de queijo' },
+    ];
+
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const fields = ['name', 'email', 'gift1', 'gift2', 'gift3', 'food'];
+
+    const foodListEl = document.getElementById('food-list');
+    const foodEmptyEl = document.getElementById('food-empty');
+    const foodDupEl = document.getElementById('food-dup');
+    const formCard = document.getElementById('form-card');
+    const confirmCard = document.getElementById('confirm-card');
+    const form = document.getElementById('registration-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const summaryEl = document.getElementById('summary');
+
+    let foodItems = [...DEMO_FOOD];
+
+    function normalizeFood(value) {
+      return value
+        .normalize('NFD')
+        .replace(/\p{M}/gu, '')
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, ' ');
+    }
+
+    function renderFoodList() {
+      foodListEl.innerHTML = '';
+      if (foodItems.length === 0) {
+        foodEmptyEl.hidden = false;
+        return;
+      }
+      foodEmptyEl.hidden = true;
+      for (const item of foodItems) {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.food)}</span>`;
+        foodListEl.appendChild(li);
+      }
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
+    }
+
+    function setError(id, message) {
+      const input = document.getElementById(id);
+      const err = document.getElementById(`${id}-error`);
+      if (message) {
+        input.setAttribute('aria-invalid', 'true');
+        err.hidden = false;
+        err.textContent = message;
+      } else {
+        input.removeAttribute('aria-invalid');
+        err.hidden = true;
+        err.textContent = '';
+      }
+    }
+
+    function validate() {
+      const values = Object.fromEntries(fields.map((id) => [id, document.getElementById(id).value]));
+      const errors = {};
+
+      if (!values.name.trim()) errors.name = 'Informe seu nome.';
+      const email = values.email.trim();
+      if (!email) errors.email = 'Informe seu e-mail.';
+      else if (!EMAIL_RE.test(email)) errors.email = 'Informe um e-mail válido.';
+      if (!values.food.trim()) errors.food = 'Informe o que você vai levar de comida.';
+
+      for (const id of fields) setError(id, errors[id] || '');
+      return { ok: Object.keys(errors).length === 0, values };
+    }
+
+    function updateDuplicateWarning() {
+      const typed = document.getElementById('food').value;
+      const match = foodItems.some((item) => {
+        const a = normalizeFood(item.food);
+        const b = normalizeFood(typed);
+        return a && b && a === b;
+      });
+      foodDupEl.hidden = !match;
+    }
+
+    function showConfirmation(values) {
+      summaryEl.innerHTML = `
+        <div><dt>Nome</dt><dd>${escapeHtml(values.name.trim())}</dd></div>
+        <div><dt>E-mail</dt><dd>${escapeHtml(values.email.trim())}</dd></div>
+        <div><dt>Sugestão 1</dt><dd>${escapeHtml(values.gift1.trim())}</dd></div>
+        <div><dt>Sugestão 2</dt><dd>${escapeHtml(values.gift2.trim())}</dd></div>
+        <div><dt>Sugestão 3</dt><dd>${escapeHtml(values.gift3.trim())}</dd></div>
+        <div><dt>Comida</dt><dd>${escapeHtml(values.food.trim())}</dd></div>
+      `;
+      formCard.hidden = true;
+      confirmCard.hidden = false;
+      confirmCard.focus();
+    }
+
+    document.getElementById('food').addEventListener('input', updateDuplicateWarning);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const { ok, values } = validate();
+      if (!ok) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Confirmando…';
+      // Simulação local — nenhum e-mail ou banco real
+      await new Promise((r) => setTimeout(r, 450));
+
+      foodItems = [
+        ...foodItems,
+        {
+          id: `demo-local-${crypto.randomUUID()}`,
+          name: values.name.trim(),
+          food: values.food.trim(),
+        },
+      ];
+      renderFoodList();
+      showConfirmation(values);
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Confirmar minha participação';
+    });
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      confirmCard.hidden = true;
+      formCard.hidden = false;
+      form.reset();
+      for (const id of fields) setError(id, '');
+      updateDuplicateWarning();
+      renderFoodList();
+    });
+
+    renderFoodList();
+    updateDuplicateWarning();
+  </script>
+</body>
+</html>
