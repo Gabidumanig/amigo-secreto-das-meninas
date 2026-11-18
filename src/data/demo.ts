@@ -22,20 +22,4 @@ export const DEMO_EVENT: EventInfo = {
   drawStatus: 'pending',
 }
 
-export const DEMO_FOOD_LIST: FoodItem[] = [
-  {
-    participantId: 'demo-p1',
-    name: 'Mariana',
-    food: 'Torta salgada',
-  },
-  {
-    participantId: 'demo-p2',
-    name: 'Julia',
-    food: 'Brigadeiro',
-  },
-  {
-    participantId: 'demo-p3',
-    name: 'Fernanda',
-    food: 'Pão de queijo',
-  },
-]
+export const DEMO_FOOD_LIST: FoodItem[] = []
