@@ -389,6 +389,15 @@
       <p class="gift-rule">Presente de até R$ 100,00</p>
     </header>
 
+    <p id="config-warning" class="warn" hidden>
+      O site ainda precisa da configuração do Supabase em <code>js/config.js</code>.
+    </p>
+
+    <section id="closed-card" class="card" hidden>
+      <h2>Inscrições encerradas</h2>
+      <p class="lead">As inscrições para este amigo secreto já foram encerradas. O resultado do sorteio será enviado por e-mail às participantes.</p>
+    </section>
+
     <section id="form-card" class="card" aria-labelledby="registration-heading">
       <h2 id="registration-heading">Confirme sua participação</h2>
       <p class="lead">Nome, e-mail e comida são obrigatórios. As sugestões de presente são opcionais.</p>
@@ -461,152 +470,188 @@
       <p class="note">
         Amigo Secreto das Meninas · 17 de dezembro de 2026 · 18h · Casa da Gabi
       </p>
-      <button class="btn btn-secondary" id="back-btn" type="button">Voltar ao formulário (demo)</button>
+      <button class="btn btn-secondary" id="back-btn" type="button" hidden>Nova inscrição neste aparelho</button>
     </section>
   </main>
 
-  <script>
-    /**
-     * DADOS DEMONSTRATIVOS — Etapa 1 (somente interface).
-     * Serão substituídos pela integração real na Etapa 2.
-     */
-    const DEMO_FOOD = [];
+  <script src="./js/config.js"></script>
+  <script type="module">
+    import { fetchPublicEvent, fetchPublicFoods, registerParticipant } from './js/api.js'
 
-    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const fields = ['name', 'email', 'gift1', 'gift2', 'gift3', 'food'];
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const fields = ['name', 'email', 'gift1', 'gift2', 'gift3', 'food']
+    const slug = window.AMIGO_CONFIG?.eventSlug
 
-    const foodListEl = document.getElementById('food-list');
-    const foodEmptyEl = document.getElementById('food-empty');
-    const foodDupEl = document.getElementById('food-dup');
-    const formCard = document.getElementById('form-card');
-    const confirmCard = document.getElementById('confirm-card');
-    const form = document.getElementById('registration-form');
-    const submitBtn = document.getElementById('submit-btn');
-    const summaryEl = document.getElementById('summary');
+    const foodListEl = document.getElementById('food-list')
+    const foodEmptyEl = document.getElementById('food-empty')
+    const foodDupEl = document.getElementById('food-dup')
+    const formCard = document.getElementById('form-card')
+    const closedCard = document.getElementById('closed-card')
+    const confirmCard = document.getElementById('confirm-card')
+    const form = document.getElementById('registration-form')
+    const submitBtn = document.getElementById('submit-btn')
+    const summaryEl = document.getElementById('summary')
+    const configWarning = document.getElementById('config-warning')
 
-    let foodItems = [...DEMO_FOOD];
+    let foodItems = []
 
     function normalizeFood(value) {
-      return value
-        .normalize('NFD')
-        .replace(/\p{M}/gu, '')
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, ' ');
-    }
-
-    function renderFoodList() {
-      foodListEl.innerHTML = '';
-      if (foodItems.length === 0) {
-        foodEmptyEl.hidden = false;
-        return;
-      }
-      foodEmptyEl.hidden = true;
-      for (const item of foodItems) {
-        const li = document.createElement('li');
-        li.innerHTML = `<strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.food)}</span>`;
-        foodListEl.appendChild(li);
-      }
+      return value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim().replace(/\s+/g, ' ')
     }
 
     function escapeHtml(text) {
-      return text
+      return String(text)
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;');
+        .replaceAll('"', '&quot;')
+    }
+
+    function renderFoodList() {
+      foodListEl.innerHTML = ''
+      if (foodItems.length === 0) {
+        foodEmptyEl.hidden = false
+        return
+      }
+      foodEmptyEl.hidden = true
+      for (const item of foodItems) {
+        const li = document.createElement('li')
+        li.innerHTML = `<strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.food)}</span>`
+        foodListEl.appendChild(li)
+      }
     }
 
     function setError(id, message) {
-      const input = document.getElementById(id);
-      const err = document.getElementById(`${id}-error`);
+      const input = document.getElementById(id)
+      const err = document.getElementById(`${id}-error`)
       if (message) {
-        input.setAttribute('aria-invalid', 'true');
-        err.hidden = false;
-        err.textContent = message;
+        input.setAttribute('aria-invalid', 'true')
+        err.hidden = false
+        err.textContent = message
       } else {
-        input.removeAttribute('aria-invalid');
-        err.hidden = true;
-        err.textContent = '';
+        input.removeAttribute('aria-invalid')
+        err.hidden = true
+        err.textContent = ''
       }
     }
 
     function validate() {
-      const values = Object.fromEntries(fields.map((id) => [id, document.getElementById(id).value]));
-      const errors = {};
-
-      if (!values.name.trim()) errors.name = 'Informe seu nome.';
-      const email = values.email.trim();
-      if (!email) errors.email = 'Informe seu e-mail.';
-      else if (!EMAIL_RE.test(email)) errors.email = 'Informe um e-mail válido.';
-      if (!values.food.trim()) errors.food = 'Informe o que você vai levar de comida.';
-
-      for (const id of fields) setError(id, errors[id] || '');
-      return { ok: Object.keys(errors).length === 0, values };
+      const values = Object.fromEntries(fields.map((id) => [id, document.getElementById(id).value]))
+      const errors = {}
+      if (!values.name.trim()) errors.name = 'Informe seu nome.'
+      const email = values.email.trim()
+      if (!email) errors.email = 'Informe seu e-mail.'
+      else if (!EMAIL_RE.test(email)) errors.email = 'Informe um e-mail válido.'
+      if (!values.food.trim()) errors.food = 'Informe o que você vai levar de comida.'
+      for (const id of fields) setError(id, errors[id] || '')
+      return { ok: Object.keys(errors).length === 0, values }
     }
 
     function updateDuplicateWarning() {
-      const typed = document.getElementById('food').value;
+      const typed = document.getElementById('food').value
       const match = foodItems.some((item) => {
-        const a = normalizeFood(item.food);
-        const b = normalizeFood(typed);
-        return a && b && a === b;
-      });
-      foodDupEl.hidden = !match;
+        const a = normalizeFood(item.food)
+        const b = normalizeFood(typed)
+        return a && b && a === b
+      })
+      foodDupEl.hidden = !match
     }
 
-    function showConfirmation(values) {
+    function showConfirmation(values, extraMessage) {
       summaryEl.innerHTML = `
         <div><dt>Nome</dt><dd>${escapeHtml(values.name.trim())}</dd></div>
         <div><dt>E-mail</dt><dd>${escapeHtml(values.email.trim())}</dd></div>
-        <div><dt>Sugestão 1</dt><dd>${escapeHtml(values.gift1.trim())}</dd></div>
-        <div><dt>Sugestão 2</dt><dd>${escapeHtml(values.gift2.trim())}</dd></div>
-        <div><dt>Sugestão 3</dt><dd>${escapeHtml(values.gift3.trim())}</dd></div>
+        <div><dt>Sugestão 1</dt><dd>${escapeHtml(values.gift1.trim() || '—')}</dd></div>
+        <div><dt>Sugestão 2</dt><dd>${escapeHtml(values.gift2.trim() || '—')}</dd></div>
+        <div><dt>Sugestão 3</dt><dd>${escapeHtml(values.gift3.trim() || '—')}</dd></div>
         <div><dt>Comida</dt><dd>${escapeHtml(values.food.trim())}</dd></div>
-      `;
-      formCard.hidden = true;
-      confirmCard.hidden = false;
-      confirmCard.focus();
+      `
+      if (extraMessage) {
+        document.querySelector('#confirm-card .lead').textContent = extraMessage
+      }
+      formCard.hidden = true
+      confirmCard.hidden = false
+      confirmCard.focus()
     }
 
-    document.getElementById('food').addEventListener('input', updateDuplicateWarning);
+    async function refreshFoods() {
+      const rows = await fetchPublicFoods(slug)
+      foodItems = (rows || []).map((r) => ({
+        id: r.participant_id,
+        name: r.name,
+        food: r.food,
+      }))
+      renderFoodList()
+      updateDuplicateWarning()
+    }
+
+    document.getElementById('food').addEventListener('input', updateDuplicateWarning)
 
     form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const { ok, values } = validate();
-      if (!ok) return;
+      event.preventDefault()
+      const { ok, values } = validate()
+      if (!ok) return
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Confirmando…';
-      // Simulação local — nenhum e-mail ou banco real
-      await new Promise((r) => setTimeout(r, 450));
+      submitBtn.disabled = true
+      submitBtn.textContent = 'Confirmando…'
+      try {
+        const result = await registerParticipant({
+          eventSlug: slug,
+          name: values.name,
+          email: values.email,
+          gift1: values.gift1,
+          gift2: values.gift2,
+          gift3: values.gift3,
+          food: values.food,
+        })
+        await refreshFoods()
+        let msg = result.message
+        if (result.emailSimulated) {
+          msg += ' (e-mail em modo simulação — configure o Resend para envio real.)'
+        }
+        showConfirmation(values, msg)
+      } catch (err) {
+        const details = err.details
+        if (details?.errors) {
+          for (const id of fields) setError(id, details.errors[id] || '')
+        } else {
+          alert(err.message || 'Não foi possível confirmar.')
+        }
+      } finally {
+        submitBtn.disabled = false
+        submitBtn.textContent = 'Confirmar minha participação'
+      }
+    })
 
-      foodItems = [
-        ...foodItems,
-        {
-          id: `demo-local-${crypto.randomUUID()}`,
-          name: values.name.trim(),
-          food: values.food.trim(),
-        },
-      ];
-      renderFoodList();
-      showConfirmation(values);
+    async function boot() {
+      if (!window.AMIGO_CONFIG?.supabaseUrl || !window.AMIGO_CONFIG?.supabaseAnonKey) {
+        configWarning.hidden = false
+        renderFoodList()
+        return
+      }
+      try {
+        const event = await fetchPublicEvent(slug)
+        if (!event) {
+          configWarning.hidden = false
+          configWarning.textContent = 'Evento não encontrado. Rode o seed.sql no Supabase.'
+          return
+        }
+        if (event.registration_status !== 'open') {
+          formCard.hidden = true
+          closedCard.hidden = false
+        }
+        await refreshFoods()
+        setInterval(() => {
+          refreshFoods().catch(() => {})
+        }, 15000)
+      } catch (err) {
+        configWarning.hidden = false
+        configWarning.textContent = err.message
+        renderFoodList()
+      }
+    }
 
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Confirmar minha participação';
-    });
-
-    document.getElementById('back-btn').addEventListener('click', () => {
-      confirmCard.hidden = true;
-      formCard.hidden = false;
-      form.reset();
-      for (const id of fields) setError(id, '');
-      updateDuplicateWarning();
-      renderFoodList();
-    });
-
-    renderFoodList();
-    updateDuplicateWarning();
+    boot()
   </script>
 </body>
 </html>

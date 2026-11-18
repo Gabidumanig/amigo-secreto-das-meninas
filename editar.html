@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Editar participação</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --wine:#7a1f3d; --cream:#fff6f0; --ink:#3a1f28; --muted:#7a5a64; }
+    body { margin:0; font-family:Outfit,sans-serif; background:linear-gradient(180deg,#fff6f0,#f7e8df); color:var(--ink); }
+    main { max-width:32rem; margin:0 auto; padding:1.5rem; }
+    h1 { font-family:Fraunces,serif; color:var(--wine); font-size:1.6rem; }
+    label { display:block; font-weight:600; margin-top:.85rem; }
+    input,button { width:100%; box-sizing:border-box; min-height:2.75rem; margin-top:.35rem; border-radius:.75rem; border:1px solid #7a1f3d33; padding:.55rem .85rem; font:inherit; }
+    button { background:var(--wine); color:var(--cream); border:0; font-weight:700; margin-top:1rem; }
+    .muted { color:var(--muted); }
+    .card { background:#fff8f4; border-radius:1rem; padding:1.25rem; border:1px solid #7a1f3d22; }
+    .err { color:#a1243b; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Editar participação</h1>
+    <p id="msg" class="muted">Carregando…</p>
+    <form id="form" class="card" hidden>
+      <label>Nome<input id="name" /></label>
+      <label>E-mail<input id="email" type="email" /></label>
+      <label>Sugestão 1<input id="gift1" /></label>
+      <label>Sugestão 2<input id="gift2" /></label>
+      <label>Sugestão 3<input id="gift3" /></label>
+      <label>Comida<input id="food" /></label>
+      <button type="submit">Salvar</button>
+      <p id="form-msg" class="err"></p>
+    </form>
+  </main>
+  <script src="./js/config.js"></script>
+  <script type="module">
+    import { loadEditParticipant, saveEditParticipant } from './js/api.js'
+    const token = new URLSearchParams(location.search).get('token') || ''
+    const msg = document.getElementById('msg')
+    const form = document.getElementById('form')
+
+    if (!token) {
+      msg.textContent = 'Link inválido.'
+    } else {
+      try {
+        const data = await loadEditParticipant(token)
+        msg.textContent = `${data.event.name} · permissões conforme a fase do evento.`
+        form.hidden = false
+        for (const key of ['name','email','gift1','gift2','gift3','food']) {
+          document.getElementById(key).value = data.participant[key] || ''
+        }
+        document.getElementById('name').disabled = !data.permissions.canEditProfile
+        document.getElementById('email').disabled = !data.permissions.canEditProfile
+        document.getElementById('gift1').disabled = !data.permissions.canEditGifts
+        document.getElementById('gift2').disabled = !data.permissions.canEditGifts
+        document.getElementById('gift3').disabled = !data.permissions.canEditGifts
+        document.getElementById('food').disabled = !data.permissions.canEditFood
+
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault()
+          document.getElementById('form-msg').textContent = ''
+          try {
+            await saveEditParticipant(token, {
+              name: document.getElementById('name').value,
+              email: document.getElementById('email').value,
+              gift1: document.getElementById('gift1').value,
+              gift2: document.getElementById('gift2').value,
+              gift3: document.getElementById('gift3').value,
+              food: document.getElementById('food').value,
+            })
+            document.getElementById('form-msg').style.color = '#2f6b4f'
+            document.getElementById('form-msg').textContent = 'Salvo!'
+          } catch (err) {
+            document.getElementById('form-msg').style.color = '#a1243b'
+            document.getElementById('form-msg').textContent = err.message
+          }
+        })
+      } catch (err) {
+        msg.textContent = err.message
+      }
+    }
+  </script>
+</body>
+</html>

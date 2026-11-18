@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin · Amigo Secreto das Meninas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --wine:#7a1f3d; --cream:#fff6f0; --ink:#3a1f28; --muted:#7a5a64; --blush:#f6d5d8; }
+    body { margin:0; font-family:Outfit,sans-serif; background:linear-gradient(180deg,#fff6f0,#f7e8df); color:var(--ink); }
+    main { max-width:52rem; margin:0 auto; padding:1.5rem; }
+    h1 { font-family:Fraunces,serif; color:var(--wine); }
+    .card { background:#fff8f4; border:1px solid #7a1f3d22; border-radius:1rem; padding:1.25rem; margin:1rem 0; }
+    input,button { font:inherit; min-height:2.75rem; border-radius:.75rem; border:1px solid #7a1f3d33; padding:.5rem .9rem; }
+    button { background:var(--wine); color:var(--cream); border:0; font-weight:700; cursor:pointer; }
+    button.secondary { background:var(--cream); color:var(--wine); border:1px solid #7a1f3d33; }
+    table { width:100%; border-collapse:collapse; font-size:.92rem; }
+    th,td { text-align:left; padding:.55rem .35rem; border-bottom:1px solid #7a1f3d15; vertical-align:top; }
+    .muted { color:var(--muted); }
+    .row { display:flex; flex-wrap:wrap; gap:.5rem; margin:.75rem 0; }
+    .err { color:#a1243b; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Área da organizadora</h1>
+    <p class="muted">Sem cadastro público. Use o e-mail autorizado no Supabase.</p>
+
+    <section id="login" class="card">
+      <h2>Entrar</h2>
+      <p class="muted">Enviamos um link mágico para o seu e-mail.</p>
+      <div class="row">
+        <input id="admin-email" type="email" placeholder="seu@email.com" style="flex:1;min-width:12rem" />
+        <button id="login-btn" type="button">Receber link</button>
+      </div>
+      <p id="login-msg" class="muted"></p>
+    </section>
+
+    <section id="panel" class="card" hidden>
+      <p id="status-line" class="muted"></p>
+      <div class="row">
+        <button id="refresh-btn" class="secondary" type="button">Atualizar</button>
+        <button id="close-btn" type="button">Encerrar inscrições</button>
+        <button id="reopen-btn" class="secondary" type="button">Reabrir inscrições</button>
+        <button id="draw-btn" type="button">Realizar sorteio</button>
+        <button id="resend-btn" class="secondary" type="button">Reenviar e-mails que falharam</button>
+        <button id="logout-btn" class="secondary" type="button">Sair</button>
+      </div>
+      <h3>Participantes</h3>
+      <div style="overflow:auto">
+        <table>
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Comida</th><th></th></tr></thead>
+          <tbody id="participants-body"></tbody>
+        </table>
+      </div>
+      <h3>E-mails</h3>
+      <div style="overflow:auto">
+        <table>
+          <thead><tr><th>Tipo</th><th>Status</th><th>Tentativas</th><th>Erro</th></tr></thead>
+          <tbody id="emails-body"></tbody>
+        </table>
+      </div>
+      <p id="panel-msg" class="err"></p>
+    </section>
+  </main>
+
+  <script src="./js/config.js"></script>
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
+    import { adminApi, runDraw } from './js/api.js'
+
+    const c = window.AMIGO_CONFIG
+    const supabase = createClient(c.supabaseUrl || 'https://invalid.local', c.supabaseAnonKey || 'invalid')
+    let eventId = null
+    let accessToken = null
+
+    const loginBox = document.getElementById('login')
+    const panel = document.getElementById('panel')
+
+    async function ensureSession() {
+      const { data } = await supabase.auth.getSession()
+      if (data.session) {
+        accessToken = data.session.access_token
+        loginBox.hidden = true
+        panel.hidden = false
+        await loadDashboard()
+      }
+    }
+
+    async function resolveEventId() {
+      const res = await fetch(`${c.supabaseUrl}/rest/v1/rpc/get_public_event`, {
+        method: 'POST',
+        headers: {
+          apikey: c.supabaseAnonKey,
+          Authorization: `Bearer ${c.supabaseAnonKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ p_slug: c.eventSlug }),
+      })
+      const rows = await res.json()
+      eventId = rows?.[0]?.id
+      if (!eventId) throw new Error('Evento não encontrado. Rode o seed.sql.')
+    }
+
+    async function loadDashboard() {
+      document.getElementById('panel-msg').textContent = ''
+      await resolveEventId()
+      const data = await adminApi(accessToken, { action: 'dashboard', eventId })
+      const e = data.event
+      document.getElementById('status-line').textContent =
+        `Participantes: ${data.totals.participants} · Inscrições: ${e.registration_status} · Sorteio: ${e.draw_status} · E-mails ok: ${data.totals.emailsAccepted} · Pendentes/falhas: ${data.totals.emailsPending}`
+
+      const tbody = document.getElementById('participants-body')
+      tbody.innerHTML = ''
+      for (const p of data.participants) {
+        const tr = document.createElement('tr')
+        tr.innerHTML = `<td>${escape(p.name)}</td><td>${escape(p.email)}</td><td>${escape(p.food)}</td>
+          <td>${e.draw_status === 'pending' ? `<button data-del="${p.id}" class="secondary" type="button">Remover</button>` : ''}</td>`
+        tbody.appendChild(tr)
+      }
+      tbody.querySelectorAll('[data-del]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('Remover esta participante?')) return
+          await adminApi(accessToken, { action: 'delete_participant', eventId, participantId: btn.dataset.del })
+          await loadDashboard()
+        })
+      })
+
+      const emails = document.getElementById('emails-body')
+      emails.innerHTML = ''
+      for (const j of data.emailJobs) {
+        const tr = document.createElement('tr')
+        tr.innerHTML = `<td>${escape(j.job_type)}</td><td>${escape(j.status)}</td><td>${j.attempts}</td><td>${escape(j.last_error || '')}</td>`
+        emails.appendChild(tr)
+      }
+    }
+
+    function escape(v) {
+      return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+    }
+
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const email = document.getElementById('admin-email').value.trim()
+      const msg = document.getElementById('login-msg')
+      msg.textContent = 'Enviando…'
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.href },
+      })
+      msg.textContent = error ? error.message : 'Link enviado. Abra o e-mail neste aparelho.'
+    })
+
+    document.getElementById('refresh-btn').addEventListener('click', () => loadDashboard())
+    document.getElementById('close-btn').addEventListener('click', async () => {
+      await adminApi(accessToken, { action: 'close_registrations', eventId })
+      await loadDashboard()
+    })
+    document.getElementById('reopen-btn').addEventListener('click', async () => {
+      await adminApi(accessToken, { action: 'reopen_registrations', eventId })
+      await loadDashboard()
+    })
+    document.getElementById('draw-btn').addEventListener('click', async () => {
+      const ok = confirm('Todas já se cadastraram? O sorteio será realizado uma única vez e cada participante receberá o resultado por e-mail.')
+      if (!ok) return
+      try {
+        const result = await runDraw(accessToken, eventId)
+        alert(result.message + (result.emailsSimulated ? ` (${result.emailsSimulated} e-mails simulados)` : ''))
+        await loadDashboard()
+      } catch (err) {
+        document.getElementById('panel-msg').textContent = err.message
+      }
+    })
+    document.getElementById('resend-btn').addEventListener('click', async () => {
+      const result = await adminApi(accessToken, { action: 'resend_failed_emails', eventId })
+      alert(`Reenviados: ${result.resent}`)
+      await loadDashboard()
+    })
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await supabase.auth.signOut()
+      location.reload()
+    })
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        accessToken = session.access_token
+        loginBox.hidden = true
+        panel.hidden = false
+        loadDashboard().catch((e) => {
+          document.getElementById('panel-msg').textContent = e.message
+        })
+      }
+    })
+
+    ensureSession().catch((e) => {
+      document.getElementById('login-msg').textContent = e.message
+    })
+  </script>
+</body>
+</html>
