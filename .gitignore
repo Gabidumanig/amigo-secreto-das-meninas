@@ -33,3 +33,6 @@ package-lock.json
 # Coverage / test
 coverage
 *.tsbuildinfo
+
+.tools/
+
