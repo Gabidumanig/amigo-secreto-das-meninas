@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
 import { ConfirmationCard } from '../components/ConfirmationCard'
-import { DemoBanner } from '../components/DemoBanner'
 import { EventHero } from '../components/EventHero'
 import { RegistrationForm } from '../components/RegistrationForm'
-import { DEMO_EVENT, DEMO_FOOD_LIST, IS_DEMO_MODE } from '../data/demo'
+import { DEMO_EVENT, DEMO_FOOD_LIST } from '../data/demo'
 import type { ConfirmedParticipation, FoodItem } from '../types'
 
 export function EventPage() {
@@ -34,17 +33,8 @@ export function EventPage() {
 
   return (
     <div className="min-h-dvh">
-      <DemoBanner />
-
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
         <EventHero event={event} />
-
-        {IS_DEMO_MODE ? (
-          <p className="rounded-xl border border-dashed border-wine/25 bg-cream/60 px-4 py-3 text-sm text-muted">
-            Link privado de demonstração:{' '}
-            <code className="break-all text-wine">/e/{event.publicSlug}</code>
-          </p>
-        ) : null}
 
         {closedMessage ? (
           <section
